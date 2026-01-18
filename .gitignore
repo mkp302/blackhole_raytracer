@@ -1,0 +1,12 @@
+# Ignore CMake build files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+raytracer
+.DS_Store
+
+# Keep source and project files
+!CMakeLists.txt
+!src/
+
