@@ -26,12 +26,12 @@ int main(int argc, char *argv[]) {
   std::cout << "aspect = " << aspect << "\n";
 
   // Output Image in greyscale
-  std::vector<unsigned char> image(height * width)
+  std::vector<unsigned char> image(height * width);
 
-      // Naively iterate accross each pixel, get angle and integrate the
-      // geodesic.
-      for (int i = 0, i < width; i++) {
-    for (int j = 0 j < height; j++) {
+  // Naively iterate accross each pixel, get angle and integrate the
+  // geodesic.
+  for (int i = 0; i < width; i++) {
+    for (int j = 0; j < height; j++) {
     }
   }
 

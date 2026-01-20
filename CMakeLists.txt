@@ -9,6 +9,7 @@ find_package(Boost REQUIRED)
 
 add_executable(raytracer
     src/main.cpp
+    src/schwarzschildMetric.cpp
 )
 
 target_include_directories(raytracer

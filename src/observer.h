@@ -1,10 +1,10 @@
 #ifndef OBSERVER
 #define OBSERVER
-#include "Vec4.h"
+#include "vec4.h"
 
 class Observer {
   Vec4 position;
-  vec4 velocity;
+  Vec4 velocity;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef TETRAD
-#define TETRAD
+#ifndef VEC4
+#define VEC4
 
 struct Vec4 {
   double t, r, theta, phi;

@@ -3,10 +3,10 @@
 
 #include "vec4.h"
 
-Struct Tetrad {
-  Vec4 t;
-  Vec4 r;
-  Vec4 theta; // polar angle
-  Vec4 phi;   //  azimuth angle
+struct Tetrad {
+  Vec4 e0;
+  Vec4 e1;
+  Vec4 e2;
+  Vec4 e3;
 };
 #endif
