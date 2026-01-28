@@ -71,13 +71,85 @@ E-mails:
 mkp302@mun.ca
 
 \vspace{9mm}\par\noindent\hspace*{8mm}\parbox{140mm}{\small\looseness=-1
-
+This research aims to develop a ray tracer capable of rendering a black hole using various techniques.
 }\par\vspace{5mm}
 
 
-Keywords:
+Keywords:3D Graphics,Ray Tracing, General Relativity, Black Holes, Schwarzschild spacetime
 
 
 
 
+\section{Computer Graphics: Ray Tracing}
+\subsection{Pin Hole}
+The aim of a ray tracer is to render a 3D scene by simulating the optics of light. In order to achieve this, a simple model of a camera is needed.
+The simplest type of camera is a pinhole camera. This consists of a box with an opening called an aperture. The radius of the aperture is very small to allow only a small angle of light through the opening. This focuses light from the scene on to a single point. This allows an image to be projected onto the rear of box, albeit inverted.
 
+More complicated cameras use the same principle. They focus light from a scene onto a small area only they use a lens to focus light onto either a photosensitive material or a photosensitive diode.
+
+\subsection{Virtual Camera}
+In 3D graphics we use a virtual camera. Ultimately this amounts to treating a camera as a 3D object located in the scene with an orientation. To construct an image we imagine the light that has reached the camera as passing through a virtual screen in front of the camera. If we imagine the screen as a grid of pixels then the color of each pixel depends on the properties of the light ray that reaches the observer after passing through that particular pixel.
+
+Since most light rays produced in a scene will never reach the camera, it is inefficient to track every light ray produced in a scene. We use a technique called back propagation. In back propagation, we start with a ray at the camera's position and trace it backwards in time, tracking how it interacts with objects in the scene. Objects will have different specular properties will affect the quality of the light as it reches the camera.
+
+Even in a complicated scene where a light ray interacts with many objects in a scene, the path it takes it's still quite simple. In Euclidean space light will move in a straight line. In contrast, general relativity is a curved spacetime so the path light takes is much more complicated. Large masses bend light, so if we want to realistically model how light behaves around a black hole we need to take these relativistic effects into account.
+
+
+
+
+\section{General Relativity}
+\subsection{Einstein Field Equations}
+$$G_{\mu\nu} + \Lambda g_{\mu\nu} = T_{\mu\nu}$$
+
+
+\subsection{Schwarzschild Metric}
+$$ ds^2 = $$
+$$$$
+\subsection{Null Geodesics}
+In a curved spacetime the equivalent to a straight line is called a geodesic. These are 
+$$g_{\mu\nu k^\mu k^\nu} = 0$$
+
+
+\section{Algorithm}
+Our scene will consist blackhole with mass M at r = 0 and an observer located at some distance r from the blackhole. Since Schwarzschild spacetime is spherically symmetric it is convenient to place the observer on the equatorial plane at $\theta = \pi/2 $. Thus the observer will have a 4-position of $(0,r,\pi/2,0)$.
+
+Our output image will consist of a 2D array of pixels. For each pixel i,j in our final image, we calculate the angle between the pixel and the observer in observers reference frame. We use this angle to initialize the 4-position $(t,r,\theta,\phi)$ and then numerically solve the 8 geodesic equations moving backwards keeping track of the path the ray takes. If the ray reaches a large radial distance away from the blackhole (typically 1000M) the ray is considered to have escaped. At this distance the relativistic affects of the black hole are negligible. Conversely, when a ray travels to close to the blackhole the gravitation force on the ray is to great for it to escape and the ray is considered captured. The point of no return where it is impossible for a ray to escape is called the Event Horizon. For a schwarzschild blackhole this diststance is 2M. this can be derived by noticing how the metric diverges when r approaces 2M. 
+
+Since we are integrating backwards with respect to some affine parameter p. Captured rays represent light that originated inside the event horizon. Since it is impossible for this light to have reached the observer, the pixel these captured rays pass through are colored black. In this way these captured rays define the blackholes shadow in the final image.
+
+In contrast, escaped rays are considered to keep propagating out to infinity. To determine the color of these pixels, we think of a sphere surrounding the observer at infinity called the celestial sphere. The escaped rays will have some final angle $\theta$ and $\phi$ with respect to the observers reference frame, and we use this to sample the celestial sphere.
+
+\subsection{Numerically Solving Geodesic Equations}
+We use an to numerically solve the geodesic equations. Care has to be taken to the step size used 
+
+\subsection{Test Trajectories}
+\subsection{Observer}
+
+\subsection{Solving Null Geodesic equations}
+\subsection{Sampling a Background}
+Rays that have escaped 
+\subsection{Optimizations}
+For high resolution images, solving the geodesic equations per pixel is ineffiencent. For instance, a 1920 by 1080 pixel image would require numerically solving over 2 000 000 geodesic equations. 
+
+Fortunately, we can reduce the number of geodesics we need to solve by leveraging the spherical symmetry of Schwarzschild spacetime. The general strategy is to restrict our focus to the equatorial plane, since all null geodesics pass are contained in a plane through the origin it is possible to rotate any geodesic so it lies in the equatorial plane. This simplifies the equations we need to solve as we do not need to consider the $\theta$ or ${\k^theta$ terms. From this we can construct a look up table that stores how much each ray is deflected before it reaches the celestial plane. We start with a ray at some angle delta.
+
+Then for any pixel in our image we can calculate the radial angle delta and
+
+Then we only need to solve enoug geodesic equations souch that $delta$ is well sampled. 
+
+
+\section{Results}
+
+\subsection{lensing}
+
+\section{Future}
+\subsection{Amplification Effects}
+\subsection{Ghost Images}
+\subsection{Einstein Rings}
+\subsection{Blue Shifting}
+\section{}
+
+\section{Conclusions}
+
+
+\end{document}
