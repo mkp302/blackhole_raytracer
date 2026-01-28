@@ -71,7 +71,7 @@ E-mails:
 mkp302@mun.ca
 
 \vspace{9mm}\par\noindent\hspace*{8mm}\parbox{140mm}{\small\looseness=-1
-This research aims to develop a ray tracer capable of rendering a black hole using various techniques.
+This research aims to develop a ray tracer capable of rendering a black hole by modelling how light interacts with a camera in a curved spacetime.
 }\par\vspace{5mm}
 
 
@@ -99,16 +99,79 @@ Even in a complicated scene where a light ray interacts with many objects in a s
 
 \section{General Relativity}
 \subsection{Einstein Field Equations}
+In 1916 Albert Einstein published his theory of relativity. This theory proposes that one treat space and time as a unified geometry. The consequences of this theory are the Einstein Field Equations. These are a set of partial differential equations that connect how matter and energy connect to the geometry of spacetime. 
 $$G_{\mu\nu} + \Lambda g_{\mu\nu} = T_{\mu\nu}$$
+$$G_{\mu\nu} =R_{\mu\nu} - 1/2 Rg_{\mu\nu}$$
+
+$G_{\mu\nu}$ is the Einstein tensor, $\Lambda$ is the cosmological constant, $g_{\mu\nu}$ is the spacetime metric. The Einstein tensor can be further broken down into: $$G_{\mu\nu} =R_{\mu\nu} - 1/2 Rg_{\mu\nu}$$
+where $R_{\mu\nu}$, the Ricci curvature and $R$ is the constant curvature.
+
+This form is a very compacted version of the field equations. Part of this is the use of Einstein summation notation, where each subscript represents a summation over the variable.
+
+Solutions to these equations are spacetime metrics. There are many solutions ranging in complexity but this paper will focus on the simplest solution named after physicist Karl Schwarzschild.
+
+
 
 
 \subsection{Schwarzschild Metric}
+A metric is how one finds distances and angles in a curved spacetime. It generalizes the concept of a dot product in a manifold.
+
+The Schwarzschild Metric is the simplest solution to Einstein's Field Equations. It Assumes a static spacetime (one that does not evolve in time), is non-rotating, and has no charge. The line element for this metric is:
 $$ ds^2 = $$
-$$$$
+
+The Schwarzschild Metric is defined in spherical coordinates $(t,r,\theta,\phi)$, where $t$ is a timelike coordinate, $r$ is the radial distance from a blackhole located at $r = 0$, $\theta$ is the polar angle, and $\phi$ is the azimuthal angle.
 \subsection{Null Geodesics}
-In a curved spacetime the equivalent to a straight line is called a geodesic. These are 
+In a curved spacetime the equivalent to a straight line is called a geodesic. These are the paths that objects take while in free fall. Null Geodesics are a special type of geodesic where the length of the tangent vector is zero along its path. Note is euclidean space, ero length would imply that the tangent vector is zero, however in relativistic spacetime a non-zero   
 $$g_{\mu\nu k^\mu k^\nu} = 0$$
 
+Therefore the general equation for a null geodesic is:
+
+$$\frac{dk^\mu}{dp} = \Gamma^\mu_{\mu\nu} = 0$$ 
+
+where $\Gamma$ is the christoffel symbol and $k$ is the tangent vector. The Christoffel symbols are evaluated by finding derivatives of the metric. Expanding these out produces 4 differential equations:
+
+$\frac{dk^t}{dp} =  -\frac{A'}{A} k^t k^r $
+$\frac{dk^r}{dp} = -\frac{1}{2} A'$
+$\frac{dk^\theta}{dp} = $
+$\frac{dk^\phi}{dp} = $
+$$A \equiv 1 - \frac{2M}{r}$$
+$$A' = \frac{d}{dr} 1 - \frac{2M}{r}$$
+
+that are solved in tandem with the 4-postion derivatives for some affine parameter p.
+$$\frac{dx^\mu}{dp} = k^\mu$$
+
+\subsection{Observer}
+To keep things simple, we will assume the camera shares the same reference frame as the observer. This means the camera will share the same spacetime coordinates as the observer and is pointed straight at the blackhole. Another simplification is to treat the observer as a zero-angular momentum falling in the radial direction. To covert a spacetime coordinates into the observers reference frame we use the tetrad.
+$$ T^\mu =\begin{bmatrix}
+  1 - \frac{1}{1 - \frac{2M}{r}} \\
+  - \sqrt{\frac{2M}{r}} \\
+  0 \\
+  0
+\end{bmatrix} 
+
+R^\mu =\begin{bmatrix}
+  a \\
+  -\frac{ \sqrt{ \frac{2M}{r} } } {1 - \frac{1}{1 - \frac{2M}{r} }} \\
+  0 \\
+  0
+\end{bmatrix}
+
+\Theta^\mu =\begin{bmatrix}
+  0 \\
+  0 \\
+  0 \\
+  
+\end{bmatrix}
+
+\Phi^\mu = \begin{bmatrix}
+  0 \\
+  0 \\
+  \frac{1}{r} \\
+  0
+  \frac{1}{rsin(\theta)}
+\end{bmatrix}$$
+
+This allows us to keep everything in the observers frame of reference. The reason for this choice is that it is defined everywhere except at a singularity at r = 0. In comparison, the standard spherical coordinate system with $\T \propto \frac{\delta}{\delta t}$, $R \propto \frac{\delta}{\delta r}$ etc. is only defined outside the event horizon.
 
 \section{Algorithm}
 Our scene will consist blackhole with mass M at r = 0 and an observer located at some distance r from the blackhole. Since Schwarzschild spacetime is spherically symmetric it is convenient to place the observer on the equatorial plane at $\theta = \pi/2 $. Thus the observer will have a 4-position of $(0,r,\pi/2,0)$.
@@ -119,33 +182,71 @@ Since we are integrating backwards with respect to some affine parameter p. Capt
 
 In contrast, escaped rays are considered to keep propagating out to infinity. To determine the color of these pixels, we think of a sphere surrounding the observer at infinity called the celestial sphere. The escaped rays will have some final angle $\theta$ and $\phi$ with respect to the observers reference frame, and we use this to sample the celestial sphere.
 
+
+
 \subsection{Numerically Solving Geodesic Equations}
-We use an to numerically solve the geodesic equations. Care has to be taken to the step size used 
+We use an to numerically solve the geodesic equations a 5 4 Runge–Kutta solver. Care has to be taken to the step size used near tricky points such as the event horizon at 2M. If the step too large it is possible to step over any potential crossings. Conversely it is inefficient to use a large step size when a ray is far from the blackhole.  Therefore we'll use an adaptive step step size, reducing as we approach r = 2M.  
 
 \subsection{Test Trajectories}
-\subsection{Observer}
 
-\subsection{Solving Null Geodesic equations}
+\begin{figure}[h]
+\caption{Geodesic far from the event horizon}
+\centering
+\includegraphics[width=\linewidth]{geodesic_delta_0.500.png}    
+\end{figure}
+
+\begin{figure}[h]
+\caption{Geodesic far from the event horizon}
+\centering
+\includegraphics[width=\linewidth]{geodesic_delta_0.167.png}    
+\end{figure}
+
 \subsection{Sampling a Background}
-Rays that have escaped 
+Rays that have escaped will intersect the celestial sphere at some $\phi_{inf}$ and $\theta$. We can then sample the celestial sphere at this coordinate to determine its colour.
+
+There are several ways we can approach creating a celestial sphere. 
 \subsection{Optimizations}
-For high resolution images, solving the geodesic equations per pixel is ineffiencent. For instance, a 1920 by 1080 pixel image would require numerically solving over 2 000 000 geodesic equations. 
+For high resolution images, solving the geodesic equations per pixel is inefficient. For instance, a 1920 by 1080 pixel image would require numerically solving over 2 000 000 geodesic equations. 
 
 Fortunately, we can reduce the number of geodesics we need to solve by leveraging the spherical symmetry of Schwarzschild spacetime. The general strategy is to restrict our focus to the equatorial plane, since all null geodesics pass are contained in a plane through the origin it is possible to rotate any geodesic so it lies in the equatorial plane. This simplifies the equations we need to solve as we do not need to consider the $\theta$ or ${\k^theta$ terms. From this we can construct a look up table that stores how much each ray is deflected before it reaches the celestial plane. We start with a ray at some angle delta.
 
 Then for any pixel in our image we can calculate the radial angle delta and
 
-Then we only need to solve enoug geodesic equations souch that $delta$ is well sampled. 
+Then we only need to solve enough geodesic equations such that $delta$ is well sampled. 
 
 
 \section{Results}
+\begin{figure}[h]
+\caption{replace this}
+\centering
+\includegraphics[width=\linewidth]{20M_blackhole.png}
+\end{figure}
+
+\begin{figure}[h]
+\caption{replace this}
+\centering
+\includegraphics[width=\linewidth]{20M_blackhole.png}
+\end{figure}
+
+\begin{figure}[h]
+\caption{replace this}
+\centering
+\includegraphics[width=\linewidth]{20M_blackhole.png}
+\end{figure}
 
 \subsection{lensing}
 
 \section{Future}
+There are other revivalist effects that could be measured.
 \subsection{Amplification Effects}
+Recall how the behaviour of the rays diverged when it passed close to event horizon. From an observers perspective two rays that are very close together can point to wildly different points in the night sky. This creates an amplification effect.
 \subsection{Ghost Images}
+Another consequence of relativity is that two rays that reach the observer could have originated from the same source due to the light bending around the black hole. If we have a star somewhere in the celestial plane emitting light in all directions, the rays produced can reach the observer at different angles. From the observers point of view a second image of the same star would appear to be duplicated. These types of images are called ghost images.
+
+
 \subsection{Einstein Rings}
+
+A special case 
 \subsection{Blue Shifting}
 \section{}
 
