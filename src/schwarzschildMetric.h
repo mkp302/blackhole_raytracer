@@ -5,11 +5,11 @@
 #include "tetrad.h"
 #include "vec4.h"
 
-class SchwarzschildMetric : public Metric {
+class SchwartzschildMetric : public Metric {
 public:
   double M;
 
-  explicit SchwarzschildMetric(double mass) : M(mass) {}
+  SchwartzschildMetric(double M) : Metric(M){};
   Tetrad reference_tetrad(const Vec4 &position) const;
   double dot(const Vec4 &a, const Vec4 &b, const Vec4 &x) const;
 };
