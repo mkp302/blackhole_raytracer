@@ -1,11 +1,11 @@
-#include "schwartzschildMetric.h"
+#include "schwarzschildMetric.h"
 #include "tetrad.h"
 #include <cmath>
 
 // Reference Tetrad for a static observer (for now )
 // Paper references am observer in freefall will fix later
 //
-Tetrad SchwartzschildMetric::reference_tetrad(const Vec4 &position) const {
+Tetrad SchwarzschildMetric::reference_tetrad(const Vec4 &position) const {
   Tetrad t;
   const double r = position.r;
   const double theta = position.theta;
@@ -22,8 +22,8 @@ Tetrad SchwartzschildMetric::reference_tetrad(const Vec4 &position) const {
   return t;
 };
 
-double SchwartzschildMetric::dot(const Vec4 &a, const Vec4 &b,
-                                 const Vec4 &x) const {
+double SchwarzschildMetric::dot(const Vec4 &a, const Vec4 &b,
+                                const Vec4 &x) const {
   const double r = x.r;
   const double theta = x.theta;
   const double A = 1.0 - 2.0 * M / r;

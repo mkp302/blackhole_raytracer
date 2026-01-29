@@ -9,7 +9,12 @@ find_package(Boost REQUIRED)
 
 add_executable(raytracer
     src/main.cpp
+    src/observer
     src/schwarzschildMetric.cpp
+    src/schwarzschildGeodesic.cpp
+    src/deflectionTable.cpp
+    src/deflectionTableBuilder.cpp
+    
 )
 
 target_include_directories(raytracer

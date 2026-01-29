@@ -1,4 +1,4 @@
-#include "schwartzschildGeodesic.h"
+#include "schwarzschildGeodesic.h"
 #include <array>
 #include <boost/numeric/odeint.hpp>
 #include <cmath>
@@ -45,7 +45,7 @@ struct SchwarzschildGeodesicODE {
   }
 };
 
-RayResult SchwartzschildGeodesic::integrate(double delta, bool savePath) const {
+RayResult SchwarzschildGeodesic::integrate(double delta, bool savePath) const {
   State y{};
   Tetrad t = observer.tetrad;
   std::vector<std::pair<double, double>> path;

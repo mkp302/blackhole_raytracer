@@ -1,12 +1,14 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
 # Ignore CMake build files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-raytracer
-.DS_Store
-
+*
 # Keep source and project files
 !CMakeLists.txt
 !src/
-
+!src/schwarzschildGeodesic.h
+!src/schwarzschildGeodesic.cpp
+!src/vec3.h
+!src/deflectionTable.h
+!src/deflectionTable.cpp
+!src/deflectionBuilder.h
+!src/deflectionBuilder.cpp
+!paper.tex
