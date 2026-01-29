@@ -7,7 +7,15 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
-\usepackage[backend=bibtex, sorting=none]{biblatex}
+\usepackage[
+  backend=bibtex,
+  style=numeric,
+  sorting=none
+]{biblatex}
+
+
+\addbibresource{pinhole.bib}
+
 
 
 \allowdisplaybreaks
@@ -71,144 +79,180 @@ E-mails:
 mkp302@mun.ca
 
 \vspace{9mm}\par\noindent\hspace*{8mm}\parbox{140mm}{\small\looseness=-1
-This research aims to develop a ray tracer capable of rendering a black hole by modelling how light interacts with a camera in a curved spacetime.
+The aim of this paper is to present a numerical ray tracing algorithm for visualizing black holes in Schwarzschild spacetime. This method models light propagation by integrating null geodesics backward in time from a local observer. The geodesic equations are solved numerically using an adaptive Runge–Kutta integrator. The deflection, and capture of light rays is simulated near a black hole in order to produce a image that shows relativistic effects such as distortion and gravitational lensing. Rays that cross the event horizon are identified as captured, forming the black hole shadow, while rays that escape are mapped to a celestial sphere to determine pixel colour. Test trajectories are used to verify expected relativistic behaviour. 
 }\par\vspace{5mm}
 
 
-Keywords:3D Graphics,Ray Tracing, General Relativity, Black Holes, Schwarzschild spacetime
-
-
+Keywords:3D Graphics,Ray Tracing, General Relativity, Black Holes, Schwarzschild Spacetime
 
 
 \section{Computer Graphics: Ray Tracing}
 \subsection{Pin Hole}
 The aim of a ray tracer is to render a 3D scene by simulating the optics of light. In order to achieve this, a simple model of a camera is needed.
-The simplest type of camera is a pinhole camera. This consists of a box with an opening called an aperture. The radius of the aperture is very small to allow only a small angle of light through the opening. This focuses light from the scene on to a single point. This allows an image to be projected onto the rear of box, albeit inverted.
 
-More complicated cameras use the same principle. They focus light from a scene onto a small area only they use a lens to focus light onto either a photosensitive material or a photosensitive diode.
+The simplest type of camera is a pinhole camera. This consists of a box with an opening called an aperture. The radius of the aperture is very small to allow only a small angle of light through the opening. This focuses light from the scene on to a single point. This allows an image to be projected onto the rear of the box, although inverted. \cite{SturmPeter2014PCM}
+
+More complicated cameras use the same principle. They focus light from a scene onto a small area, only they use a lens to focus light onto either a photosensitive material or a photosensitive diode.
 
 \subsection{Virtual Camera}
-In 3D graphics we use a virtual camera. Ultimately this amounts to treating a camera as a 3D object located in the scene with an orientation. To construct an image we imagine the light that has reached the camera as passing through a virtual screen in front of the camera. If we imagine the screen as a grid of pixels then the color of each pixel depends on the properties of the light ray that reaches the observer after passing through that particular pixel.
+In 3D graphics we use a virtual camera. Ultimately, this amounts to treating a camera as a 3D object located in the scene with an orientation. To construct an image, we imagine the light that has reached the camera as passing through a virtual screen in front of the camera. If we imagine the screen as a grid of pixels, then the colour of each pixel depends on the properties of the light ray that reaches the observer after passing through that particular pixel. \cite{KrivanekJaroslav2009ItRT}
 
-Since most light rays produced in a scene will never reach the camera, it is inefficient to track every light ray produced in a scene. We use a technique called back propagation. In back propagation, we start with a ray at the camera's position and trace it backwards in time, tracking how it interacts with objects in the scene. Objects will have different specular properties will affect the quality of the light as it reches the camera.
+Since most light rays emitted by a light source in a scene will never reach the camera, it is inefficient to track every ray produced in a scene. We therefore use a technique called back propagation. In back propagation, we start with a ray at the camera's position and trace it backwards in time, tracking how it interacts with objects in the scene. Objects have different specular properties and this will affect the quality of the light as it reaches the camera.
 
-Even in a complicated scene where a light ray interacts with many objects in a scene, the path it takes it's still quite simple. In Euclidean space light will move in a straight line. In contrast, general relativity is a curved spacetime so the path light takes is much more complicated. Large masses bend light, so if we want to realistically model how light behaves around a black hole we need to take these relativistic effects into account.
-
-
+Even in a complicated scene where a light ray interacts with many objects, the path it takes will still be quite simple. In Euclidean space light will move in a straight line. In contrast, general relativity is a curved spacetime so the path light takes is much more complicated. In general relativity, to an outside observer, large masses appear to bend light. However, a ray of light is simply taking the equivalent of a straight line in a curved space called a geodesic. In order to realistically model how light behaves around a black hole we need to take these relativistic effects into account.
 
 
 \section{General Relativity}
 \subsection{Einstein Field Equations}
-In 1916 Albert Einstein published his theory of relativity. This theory proposes that one treat space and time as a unified geometry. The consequences of this theory are the Einstein Field Equations. These are a set of partial differential equations that connect how matter and energy connect to the geometry of spacetime. 
-$$G_{\mu\nu} + \Lambda g_{\mu\nu} = T_{\mu\nu}$$
-$$G_{\mu\nu} =R_{\mu\nu} - 1/2 Rg_{\mu\nu}$$
+In 1915 Albert Einstein introduced his theory of relativity, motivated by his attempt to unify Newtonian physics. This theory proposes that one treat space and time as a unified geometry. The consequences of this theory are the Einstein Field Equations. These are a set of partial differential equations that connect how matter and energy connect to the geometry of spacetime. 
+\[
+G_{\mu\nu} + \Lambda g_{\mu\nu} = 8\pi T_{\mu\nu},
+\]
+where $g_{\mu\nu}$ is the spacetime metric, $T_{\mu\nu}$ is the stress–energy tensor describing the distribution of matter and energy, $\Lambda$ is the cosmological constant, and $G_{\mu\nu}$ is the Einstein tensor.
 
-$G_{\mu\nu}$ is the Einstein tensor, $\Lambda$ is the cosmological constant, $g_{\mu\nu}$ is the spacetime metric. The Einstein tensor can be further broken down into: $$G_{\mu\nu} =R_{\mu\nu} - 1/2 Rg_{\mu\nu}$$
-where $R_{\mu\nu}$, the Ricci curvature and $R$ is the constant curvature.
+The Einstein tensor encodes the curvature of spacetime and is defined as
+\[
+G_{\mu\nu} = R_{\mu\nu} - \frac{1}{2} R g_{\mu\nu},
+\]
+where $R_{\mu\nu}$ is the Ricci curvature tensor and $R$ is the Ricci scalar, obtained by contracting the Ricci tensor. \cite{alma995709728602511}
 
-This form is a very compacted version of the field equations. Part of this is the use of Einstein summation notation, where each subscript represents a summation over the variable.
+In a vacuum, where no energy or mass is present, the $T_{\mu\nu}$ vanishes. The equations then reduce to $G_{\mu\nu} = 0$
 
-Solutions to these equations are spacetime metrics. There are many solutions ranging in complexity but this paper will focus on the simplest solution named after physicist Karl Schwarzschild.
+One of the simplest nontrivial vacuum solutions to the Einstein Field Equations is the Schwarzschild metric, which describes the spacetime geometry outside a spherically symmetric, non-rotating, uncharged mass.\cite{MunozGerardo2014Oomp}
 
 
 
 
 \subsection{Schwarzschild Metric}
-A metric is how one finds distances and angles in a curved spacetime. It generalizes the concept of a dot product in a manifold.
+A metric generalizes the concept of a dot product and is used to find distances and angles in a curved spacetime.
 
-The Schwarzschild Metric is the simplest solution to Einstein's Field Equations. It Assumes a static spacetime (one that does not evolve in time), is non-rotating, and has no charge. The line element for this metric is:
-$$ ds^2 = $$
+The Schwarzschild Metric is the simplest vacuum solution to Einstein's Field Equations $G_{\mu\nu} = 0$. It Assumes a static spacetime (one that does not evolve in time), that is non-rotating, and has no charge. It is defined in spherical coordinates $(t,r,\theta,\phi)$, where $t$ is a timelike coordinate, $r$ is the radial distance from a central mass, $\theta$ is the polar angle, and $\phi$ is the azimuthal angle.
 
-The Schwarzschild Metric is defined in spherical coordinates $(t,r,\theta,\phi)$, where $t$ is a timelike coordinate, $r$ is the radial distance from a blackhole located at $r = 0$, $\theta$ is the polar angle, and $\phi$ is the azimuthal angle.
+The line element for this metric is:
+$$ ds^2 = (1 - \frac{2M}{r})dt^2 + \frac{dr^2}{1 - \frac{2M}{r})dt^2} - r^2(d\theta + sin^2 (\theta) d\phi)$$
+
+where $M$ is the mass of the central object. It is convenient to choose units such that \[G = c = 1,\] so that mass, length, and time are measured in the same units.
+
+
 \subsection{Null Geodesics}
-In a curved spacetime the equivalent to a straight line is called a geodesic. These are the paths that objects take while in free fall. Null Geodesics are a special type of geodesic where the length of the tangent vector is zero along its path. Note is euclidean space, ero length would imply that the tangent vector is zero, however in relativistic spacetime a non-zero   
+In a curved spacetime the generalization of a straight line is called a geodesic. Geodesics describe the path of freely falling objects and are determined entirely by the geometry of spacetime. The path a light ray takes is a special class of geodesic called a Null Geodesic. If we define the spacetime trajectory of a light ray as $x^\mu(p)$ for an affine parameter $p$ then we can write its tangent vector as \[
+k^\mu = \frac{dx^\mu}{dp}.
+\]
+
+A null geodesic satisfies the following equation:
 $$g_{\mu\nu k^\mu k^\nu} = 0$$
+meaning the length of the tangent vector is zero.
 
-Therefore the general equation for a null geodesic is:
+The evolution of $k^\mu$ is governed by the following geodesic equation:
 
-$$\frac{dk^\mu}{dp} = \Gamma^\mu_{\mu\nu} = 0$$ 
+$$\frac{dk^\mu}{dp} = \Gamma^\mu_{\nu\rho} = 0$$ 
 
-where $\Gamma$ is the christoffel symbol and $k$ is the tangent vector. The Christoffel symbols are evaluated by finding derivatives of the metric. Expanding these out produces 4 differential equations:
+where $\Gamma^\mu_{\nu\rho}$ are Christoffel symbols associated with the metric. These symbols describe how the coordinate basis changes from point to point in spacetime and are calculated from the derivatives of the metric. Expanding the geodesic equation yields a system of ordinary differential equations for $k^\mu$:
 
-$\frac{dk^t}{dp} =  -\frac{A'}{A} k^t k^r $
-$\frac{dk^r}{dp} = -\frac{1}{2} A'$
-$\frac{dk^\theta}{dp} = $
-$\frac{dk^\phi}{dp} = $
+$\frac{dk^t}{dp} =  -\frac{A'}{A} k^t k^r $,\hspace{10pt}
+$\frac{dk^r}{dp} = -\frac{1}{2} AA' (k^t)^2 + \frac{1}{2} \frac{A'}{A}(k^r)^2 + Ar ((k^\theta)^2 + sin^2(\theta)(k^\phi)^2) $,
+$\frac{dk^\theta}{dp} = -\frac{2}{r} k^r k^\phi + sin(\theta)cos(\theta)$,
+$\frac{dk^\phi}{dp} = -\frac{2}{r}  k^r k^\phi $,
 $$A \equiv 1 - \frac{2M}{r}$$
-$$A' = \frac{d}{dr} 1 - \frac{2M}{r}$$
+$$A' = \frac{d}{dr} (1 - \frac{2M}{r} = \frac{2M}{r^2})$$
 
-that are solved in tandem with the 4-postion derivatives for some affine parameter p.
+these equations are solved in tandem with the 4 positional derivatives:
 $$\frac{dx^\mu}{dp} = k^\mu$$
 
-\subsection{Observer}
-To keep things simple, we will assume the camera shares the same reference frame as the observer. This means the camera will share the same spacetime coordinates as the observer and is pointed straight at the blackhole. Another simplification is to treat the observer as a zero-angular momentum falling in the radial direction. To covert a spacetime coordinates into the observers reference frame we use the tetrad.
+Together, these eight equations fully determine the trajectory of a light ray through spacetime.
+
+\subsection{Camera and Observer}
+In computer graphics a camera is defined by a position and an orientation. The orientation is defined by a set of orthogonal spacelike vectors \[X^\mu, \quad Y^\mu, \quad Z^\mu,\] which define the horizontal, vertical, and forward directions of the image plane. These vectors form a local frame in which a light ray can be initialized.
+
+In curved spacetime a global reference frame does not exist. Instead, each observer has a local reference frame that is only defined st a single point. A local reference frame is constructed using an orthonormal tetrad.
+
+A tetrad is a set of four mutually orthogonal unit vectors.
+\[
+\{ T^\mu, R^\mu, \Theta^\mu, \Phi^\mu \},
+\]
+where $T^\mu$ is a timelike vector representing the observer’s four-velocity, and the remaining three vectors are spacelike and define the observer’s local spatial axes. These vectors satisfy
+\[
+g_{\mu\nu} e_{(a)}^\mu e_{(b)}^\nu = \eta_{ab},
+\]
+
+where $\eta_{ab} = \begin{bmatrix}
+  -1 &0 & 0 & 0 \\
+   0&1 & 0 & 0 \\
+  0 &0 & 1 & 0 \\
+  0 &0 & 0 & 1
+\end{bmatrix} $ is the Minkowski metric.
+
+The standard spherical coordinate system with $T \propto \frac{\delta}{\delta t}$, $R \propto \frac{\delta}{\delta r}$ etc. has a singularity at a radius of 2M. However, that singularity is only a consequence of the choice of coordinate system and vanishes after a change of coordinates. Therefore, it is convenient to treat the observer as having zero-angular momentum and falling from infinity into the black hole. This choice of coordinate system is defined everywhere, except for a singularity at r = 0. Since we are interested in tracking when a ray crosses the event horizon, this is a good choice for a coordinate system.
+
+The tetrad for such an observer is:
 $$ T^\mu =\begin{bmatrix}
   1 - \frac{1}{1 - \frac{2M}{r}} \\
   - \sqrt{\frac{2M}{r}} \\
   0 \\
   0
 \end{bmatrix} 
-
 R^\mu =\begin{bmatrix}
   a \\
   -\frac{ \sqrt{ \frac{2M}{r} } } {1 - \frac{1}{1 - \frac{2M}{r} }} \\
   0 \\
   0
 \end{bmatrix}
-
 \Theta^\mu =\begin{bmatrix}
   0 \\
   0 \\
-  0 \\
-  
+  \frac{1}{r} \\
+  0 
 \end{bmatrix}
-
 \Phi^\mu = \begin{bmatrix}
   0 \\
   0 \\
-  \frac{1}{r} \\
-  0
+  0\\
   \frac{1}{rsin(\theta)}
 \end{bmatrix}$$
 
-This allows us to keep everything in the observers frame of reference. The reason for this choice is that it is defined everywhere except at a singularity at r = 0. In comparison, the standard spherical coordinate system with $\T \propto \frac{\delta}{\delta t}$, $R \propto \frac{\delta}{\delta r}$ etc. is only defined outside the event horizon.
 
 \section{Algorithm}
-Our scene will consist blackhole with mass M at r = 0 and an observer located at some distance r from the blackhole. Since Schwarzschild spacetime is spherically symmetric it is convenient to place the observer on the equatorial plane at $\theta = \pi/2 $. Thus the observer will have a 4-position of $(0,r,\pi/2,0)$.
 
-Our output image will consist of a 2D array of pixels. For each pixel i,j in our final image, we calculate the angle between the pixel and the observer in observers reference frame. We use this angle to initialize the 4-position $(t,r,\theta,\phi)$ and then numerically solve the 8 geodesic equations moving backwards keeping track of the path the ray takes. If the ray reaches a large radial distance away from the blackhole (typically 1000M) the ray is considered to have escaped. At this distance the relativistic affects of the black hole are negligible. Conversely, when a ray travels to close to the blackhole the gravitation force on the ray is to great for it to escape and the ray is considered captured. The point of no return where it is impossible for a ray to escape is called the Event Horizon. For a schwarzschild blackhole this diststance is 2M. this can be derived by noticing how the metric diverges when r approaces 2M. 
+Our scene will consist of a central black hole with mass M and an observer located at some distance r. Since Schwarzschild spacetime is spherically symmetric, it is convenient to place the observer on the equatorial plane at $\theta = \pi/2 $. Thus the observer will have a 4-position of $(0,r,\pi/2,0)$.
 
-Since we are integrating backwards with respect to some affine parameter p. Captured rays represent light that originated inside the event horizon. Since it is impossible for this light to have reached the observer, the pixel these captured rays pass through are colored black. In this way these captured rays define the blackholes shadow in the final image.
+Our output image will consist of a 2D array of pixels. For each pixel i,j in our final image, we calculate the angle between the pixel and the observer in observers reference frame. We use this angle to initialize a ray's 4-position $(t,r,\theta,\phi)$ and then numerically solve the 8 geodesic equations moving backwards with respect to the affine parameter $p$. After each step of our integrator, we check the position of the ray to see if it has escaped the black hole or has been captured. A ray is considered to have escaped if it reaches a large radial distance away from the black hole,typically >1000M. At this distance the relativistic effects of the black hole are negligible. Conversely, a ray is considered to be captured after it has crossed the event horizon located at 2M. Because we are integrating backwards away from the observer, a captured ray represents light that has originated from inside the event horizon. Since this is impossible, this light could not have reached the observer and the pixel the captured ray passed through is coloured black. In this way these captured rays define the black hole's shadow in the final image.
 
-In contrast, escaped rays are considered to keep propagating out to infinity. To determine the color of these pixels, we think of a sphere surrounding the observer at infinity called the celestial sphere. The escaped rays will have some final angle $\theta$ and $\phi$ with respect to the observers reference frame, and we use this to sample the celestial sphere.
-
+In contrast, escaped rays will continue to propagate out to infinity. To determine the colour of these pixels, we need to sample a background sky. The background sky is represented by a celestial sphere that surrounds the observer. Conceptually, this is a sphere that lies at spacial infinity and the escaped ray intersects it at some angle. 
 
 
 \subsection{Numerically Solving Geodesic Equations}
 We use an to numerically solve the geodesic equations a 5 4 Runge–Kutta solver. Care has to be taken to the step size used near tricky points such as the event horizon at 2M. If the step too large it is possible to step over any potential crossings. Conversely it is inefficient to use a large step size when a ray is far from the blackhole.  Therefore we'll use an adaptive step step size, reducing as we approach r = 2M.  
 
 \subsection{Test Trajectories}
+Before using these equations to generate a full image of a black hole it will be useful to validate that the geodesic trajectories calculates agree with known physical behaviour. Test rays are emitted from the observer in varying directions. The resulting trajectories show two separate patterns.
+
+For example, for rays that pass far from the black hole, the path is mostly straight. However, even at large distances the curvature of spacetime produces a small bend towards the black hole.
 
 \begin{figure}[h]
 \caption{Geodesic far from the event horizon}
 \centering
-\includegraphics[width=\linewidth]{geodesic_delta_0.500.png}    
+\includegraphics[width=\linewidth]{geodesic_delta_0.900.png}    
 \end{figure}
 
+Conversely, rays that pass very close to the black hole exhibit a strong deviation from a straight path. Near the proton sphere at $r=3M$ the trajectory begins to loop around the black hole, potentially multiple times, before escaping or being captured.
+
 \begin{figure}[h]
-\caption{Geodesic far from the event horizon}
+\caption{Geodesic close to the event horizon}
 \centering
-\includegraphics[width=\linewidth]{geodesic_delta_0.167.png}    
+\includegraphics[width=5em,height=5em,keepaspectratio]{geodesic_delta_0.167.png}    
 \end{figure}
+
+This behaviour is consistent with both weak and strong field effects as described in \cite{BozzaV.2002Glit}.
+
 
 \subsection{Sampling a Background}
-Rays that have escaped will intersect the celestial sphere at some $\phi_{inf}$ and $\theta$. We can then sample the celestial sphere at this coordinate to determine its colour.
+Rays that have escaped will intersect the celestial sphere at some $\phi_{inf}$ and $\theta$. In order to create an image
 
 There are several ways we can approach creating a celestial sphere. 
 \subsection{Optimizations}
 For high resolution images, solving the geodesic equations per pixel is inefficient. For instance, a 1920 by 1080 pixel image would require numerically solving over 2 000 000 geodesic equations. 
 
-Fortunately, we can reduce the number of geodesics we need to solve by leveraging the spherical symmetry of Schwarzschild spacetime. The general strategy is to restrict our focus to the equatorial plane, since all null geodesics pass are contained in a plane through the origin it is possible to rotate any geodesic so it lies in the equatorial plane. This simplifies the equations we need to solve as we do not need to consider the $\theta$ or ${\k^theta$ terms. From this we can construct a look up table that stores how much each ray is deflected before it reaches the celestial plane. We start with a ray at some angle delta.
+Fortunately, we can reduce the number of geodesics we need to solve by leveraging the spherical symmetry of Schwarzschild spacetime. The general strategy is to restrict our focus to the equatorial plane, since all null geodesics are contained in a plane that passes through the origin, it is possible to rotate any geodesic so it lies in the equatorial plane. This simplifies the equations we need to solve as we do not need to consider the $\theta$ or ${\k^theta}$ terms. From this we can construct a look up table that stores how much each ray is deflected before it reaches the celestial plane. We start with a ray at some angle delta.
 
 Then for any pixel in our image we can calculate the radial angle delta and
 
@@ -220,37 +264,4 @@ Then we only need to solve enough geodesic equations such that $delta$ is well s
 \caption{replace this}
 \centering
 \includegraphics[width=\linewidth]{20M_blackhole.png}
-\end{figure}
 
-\begin{figure}[h]
-\caption{replace this}
-\centering
-\includegraphics[width=\linewidth]{20M_blackhole.png}
-\end{figure}
-
-\begin{figure}[h]
-\caption{replace this}
-\centering
-\includegraphics[width=\linewidth]{20M_blackhole.png}
-\end{figure}
-
-\subsection{lensing}
-
-\section{Future}
-There are other revivalist effects that could be measured.
-\subsection{Amplification Effects}
-Recall how the behaviour of the rays diverged when it passed close to event horizon. From an observers perspective two rays that are very close together can point to wildly different points in the night sky. This creates an amplification effect.
-\subsection{Ghost Images}
-Another consequence of relativity is that two rays that reach the observer could have originated from the same source due to the light bending around the black hole. If we have a star somewhere in the celestial plane emitting light in all directions, the rays produced can reach the observer at different angles. From the observers point of view a second image of the same star would appear to be duplicated. These types of images are called ghost images.
-
-
-\subsection{Einstein Rings}
-
-A special case 
-\subsection{Blue Shifting}
-\section{}
-
-\section{Conclusions}
-
-
-\end{document}
